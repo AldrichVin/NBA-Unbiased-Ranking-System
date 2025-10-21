@@ -1,9 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// https://vitejs.dev/config/
 export default defineConfig({
+  base: './', // tells Vite to use relative paths for assets
+  plugins: [react()],
   server: {
-    port: 5173,   // fixed port
-    strictPort: true, // if 5173 is busy, it will error instead of changing
+    port: 5173,
+    strictPort: true,
   },
-});
+})
