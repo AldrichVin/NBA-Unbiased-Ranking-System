@@ -434,3 +434,165 @@ print(bot_5_players_10)
 write.csv(res,"res")
 
 
+
+
+# 1. Keep Z_* in res
+res1 <- rank_players(all_stats_clean)
+
+# 2. Scale them to 0–100
+res_scaled <- res1 %>%
+  mutate(
+    IMPACT_100  = scale_logistic(Z_IMPACT),
+    SCORING_100 = scale_logistic(Z_SCORING),
+    PLAY_100    = scale_logistic(Z_PLAY),
+    REB_100     = scale_logistic(Z_REB),
+    DISC_100    = scale_logistic(Z_DISC),
+    DEF_100     = scale_logistic(Z_DEF),
+    TOTAL_100   = scale_logistic(score_total)
+  )
+
+# 3. Join with headshot from all_stats_clean
+final_comparison <- res_scaled %>%
+  left_join(
+    all_stats_clean %>% select(full_name, headshot_href),
+    by = c("namePlayer" = "full_name")
+  ) %>%
+  select(
+    rank,
+    player_name   = namePlayer,
+    team          = team_abbreviation,
+    position      = position_abbreviation,
+    headshot_href,
+    IMPACT_100  = IMPACT_100,
+    SCORING_100 = SCORING_100,
+    PLAY_100    = PLAY_100,
+    REB_100    = REB_100,
+    DISC_100    = DISC_100,
+    DEF_100       = DEF_100,
+    TOTAL_100 = TOTAL_100
+  )
+
+View(final_comparison)
+write.csv(final_comparison, "nba_player_comparison.csv", row.names = FALSE)
+
+
+# ==========================================================
+# === FINAL TRENDS CSV (USING all_stats_clean) ===
+# ==========================================================
+
+trend_final <- streak_summary %>%
+  left_join(
+    all_stats_clean %>%
+      select(full_name, position_abbreviation, team_abbreviation, headshot_href) %>%
+      distinct(full_name, .keep_all = TRUE),
+    by = c("namePlayer" = "full_name")
+  ) %>%
+  transmute(
+    player_name   = namePlayer,
+    position      = position_abbreviation,
+    team          = team_abbreviation,
+    headshot_href,
+    streak_total5,
+    streak_total10,
+    status,
+    reason
+  ) %>%
+  arrange(desc(streak_total5))
+View(all_stats)
+View(trend_final)
+# Save to CSV
+write.csv(trend_final, "nba_trends_page.csv", row.names = FALSE)
+
+cat("saved 'nba_trends_page.csv' with", nrow(trend_final), "players.\n")
+
+
+print(trend_final)
+# Save to CSV
+write.csv(trend_final, "nba_trends_page.csv", row.names = FALSE)
+
+cat("saved 'nba_trends_page.csv' with", nrow(trend_final), "players.\n")
+
+
+
+
+# ==========================================================
+# === FINAL TRENDS CSV (USING all_stats_clean) ===
+# ==========================================================
+View(all_stats)
+library(dplyr)
+library(stringr)
+library(stringi)
+
+trend_final_5 <- streak_summary %>%
+  mutate(
+    clean_name = namePlayer %>%
+      stri_trans_general("Latin-ASCII")    
+  ) %>%
+  left_join(
+    all_stats_clean %>%
+      mutate(
+        clean_name = full_name %>%
+          stri_trans_general("Latin-ASCII")  
+      ) %>%
+      select(clean_name, position_abbreviation, team_abbreviation, headshot_href) %>%
+      distinct(clean_name, .keep_all = TRUE),
+    by = "clean_name"
+  ) %>%
+  transmute(
+    player_name   = namePlayer,
+    position      = position_abbreviation,
+    team          = team_abbreviation,
+    headshot_href,
+    streak_total5,
+    streak_total10,
+    status,
+    reason
+  ) %>%
+  filter(
+    !is.na(position),
+    !is.na(team),
+    !is.na(streak_total5),
+    !is.na(streak_total10)) %>%
+  arrange(desc(streak_total5))
+
+
+View(trend_final_10)
+
+trend_final_10 <- streak_summary %>%
+  mutate(
+    clean_name = namePlayer %>%
+      stri_trans_general("Latin-ASCII")    
+  ) %>%
+  left_join(
+    all_stats_clean %>%
+      mutate(
+        clean_name = full_name %>%
+          stri_trans_general("Latin-ASCII")  
+      ) %>%
+      select(clean_name, position_abbreviation, team_abbreviation, headshot_href) %>%
+      distinct(clean_name, .keep_all = TRUE),
+    by = "clean_name"
+  ) %>%
+  transmute(
+    player_name   = namePlayer,
+    position      = position_abbreviation,
+    team          = team_abbreviation,
+    headshot_href,
+    streak_total5,
+    streak_total10,
+    status,
+    reason
+  ) %>%
+  filter(
+    !is.na(position),
+    !is.na(team),
+    !is.na(streak_total5),
+    !is.na(streak_total10)) %>%
+  arrange(desc(streak_total10))
+
+
+# Save to CSV
+write.csv(trend_final, "nba_trends_page_5.csv", row.names = FALSE)
+write.csv(trend_final, "nba_trends_page_10.csv", row.names = FALSE)
+
+
