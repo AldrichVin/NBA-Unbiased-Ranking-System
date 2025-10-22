@@ -12,10 +12,25 @@ export default function About() {
       <div className="panel" style={{ marginBottom: "30px" }}>
         <h3>Project Overview</h3>
         <p className="muted">
-          This ranking system was created to provide basketball fans with a clear,
-          data-driven way to track player performance. Instead of relying only on
-          traditional box score stats, our system highlights trends, hot and cold streaks,
-          and comparisons to help fans and analysts get a deeper perspective on the game.
+          <p>
+            This ranking system was developed to give basketball fans, analysts, and decision-makers a clear, data-driven way 
+            to track player performance throughout the NBA season. In today’s basketball landscape, most rankings are heavily 
+            influenced by subjective opinions — shaped by media narratives, fan bias, or popularity — rather than grounded in 
+            objective analysis. We set out to change that by creating a model that evaluates players solely based on real-time 
+            performance metrics.
+          </p>
+          <p>
+            Our approach goes beyond traditional box-score statistics. It highlights form trends, hot and cold streaks, 
+            consistency over time, and player comparisons, helping users see not just who’s performing well, but why and how 
+            they’re impacting their teams. The goal is to bridge the gap between advanced analytics and accessible insights, 
+            empowering both casual fans and dedicated analysts to understand the game at a deeper level.
+          </p>
+          <p>
+            Ultimately, we envision this ranking model as a tool that can complement and inform major basketball awards, such 
+            as MVP voting, All-NBA team selections, and other player accolades. By emphasizing transparency, fairness, and 
+            measurable performance, our system aims to make player evaluation more accurate, unbiased, and reflective of what 
+            truly happens on the court.
+          </p>
         </p>
       </div>
 
