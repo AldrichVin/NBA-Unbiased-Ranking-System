@@ -15,13 +15,13 @@ export default function About() {
           <p>
             This ranking system was developed to give basketball fans, analysts, and decision-makers a clear, data-driven way 
             to track player performance throughout the NBA season. In today’s basketball landscape, most rankings are heavily 
-            influenced by subjective opinions — shaped by media narratives, fan bias, or popularity — rather than grounded in 
+            influenced by subjective opinions, often shaped by media narratives, fan bias, or popularity rather than grounded in 
             objective analysis. We set out to change that by creating a model that evaluates players solely based on real-time 
             performance metrics.
           </p>
           <p>
             Our approach goes beyond traditional box-score statistics. It highlights form trends, hot and cold streaks, 
-            consistency over time, and player comparisons, helping users see not just who’s performing well, but why and how 
+            and player comparisons, helping users see not just who’s performing well, but why and how 
             they’re impacting their teams. The goal is to bridge the gap between advanced analytics and accessible insights, 
             empowering both casual fans and dedicated analysts to understand the game at a deeper level.
           </p>
