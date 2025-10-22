@@ -1,37 +1,56 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
-import time
 
-# 🔗 Your website URLs
 BASE_URL = "https://nba-ranking-ds-01.web.app"
-RANKING_URL = f"{BASE_URL}/rankings"
-
-# 🔢 Number of tabs to open
-NUM_TABS = 20  # adjust 20–30
+NUM_TABS = 20
 
 def main():
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")
-    chrome_options.add_experimental_option("detach", True)  # keeps browser open after script ends
+    chrome_options.add_experimental_option("detach", True)
 
-    # Launch one browser instance
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+    # Open homepage in first tab
     driver.get(BASE_URL)
-    print(f"[Tab 1] Opened homepage")
+    print("[Tab 1] Opened homepage")
 
-    # Wait a second between each tab open (looks smoother for presentation)
+    # Open remaining tabs
     for i in range(1, NUM_TABS):
-        driver.execute_script(f"window.open('{RANKING_URL}', '_blank');")
-        print(f"[Tab {i+1}] Opened {RANKING_URL}")
-        time.sleep(0.5)
+        driver.execute_script(f"window.open('{BASE_URL}', '_blank');")
+        print(f"[Tab {i+1}] Opened homepage")
 
-    print(f"\n{NUM_TABS} tabs opened successfully.")
+    tabs = driver.window_handles
 
-    # Keeps the script running so the browser doesn’t auto-close
-    while True:
-        time.sleep(60)
+    for i, tab in enumerate(tabs, start=1):
+        driver.switch_to.window(tab)
+        try:
+            # Wait for and click Rankings
+            rankings_link = WebDriverWait(driver, 20).until(
+                EC.element_to_be_clickable((By.LINK_TEXT, "Rankings"))
+            )
+            rankings_link.click()
+            print(f"[Tab {i}] Clicked Rankings link")
+
+            # Wait for search bar to appear
+            search_box = WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder='Search player...']"))
+            )
+            search_box.send_keys("LeBron")
+            search_box.send_keys(Keys.ENTER)
+            print(f"[Tab {i}] [OK] Searched for LeBron")
+
+        except Exception as e:
+            print(f"[Tab {i}] [X] Error navigating or searching: {e}")
+
+    print(f"\nAll {NUM_TABS} tabs navigated and searched successfully.")
+    print("Browser will remain open for showcase.")
 
 if __name__ == "__main__":
     main()
