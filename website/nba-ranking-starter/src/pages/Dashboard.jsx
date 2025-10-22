@@ -127,7 +127,6 @@ const renderPlayerRow = (p, idx) => (
               width: "36px",
               height: "36px",
               borderRadius: "50%",
-              background: "#1e293b",
               border: `1px solid ${color}`,
             }}
           />
@@ -145,7 +144,6 @@ const renderPlayerRow = (p, idx) => (
   return (
     <div
       style={{
-        background: "#0a1929",
         minHeight: "100vh",
         color: "#fff",
         fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",

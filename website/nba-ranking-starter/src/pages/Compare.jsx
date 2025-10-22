@@ -243,7 +243,8 @@ export default function Compare() {
   });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0f172a", padding: "40px 20px" }}>
+    
+    <div style={{ minHeight: "100vh", padding: "40px 20px" }}>
       <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
         <h1 style={{
           color: "#fff", fontSize: "42px", fontWeight: 700,
