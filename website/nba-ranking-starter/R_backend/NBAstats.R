@@ -296,6 +296,7 @@ logs_with_score <- logs %>%
   )
 
 
+
 # ---------------------------------------------------------
 # 3. Hot/Cold streak detection function (with reasons)
 # ---------------------------------------------------------
@@ -343,11 +344,7 @@ detect_streaks <- function(df,
       hot10  = (streak_total10 >= season_avg * ratio_hot10)  & (z10 >= z_hot),
       cold10 = (streak_total10 <= season_avg * ratio_cold10) & (z10 <= z_cold)
     )
-  df <- df %>%
-  mutate(
-    streak_total5  = scale_logistic(streak_total5),
-    streak_total10 = scale_logistic(streak_total10)
-  )
+
   # --- latest game output ---
   latest <- df %>%
     slice_tail(n = 1) %>%
@@ -403,14 +400,23 @@ detect_streaks <- function(df,
 }
 
 # ---------------------------------------------------------
-# 4. Apply to every player
+# 1. Detect streaks for each player (without scaling yet)
 # ---------------------------------------------------------
-league_streaks <- logs_with_score %>%
-  filter(!is.na(TOTAL_100)) %>%      # drop NA games (minutes=0, etc.)
+league_streaks_raw <- logs_with_score %>%
+  filter(!is.na(TOTAL_100)) %>%
   group_by(idPlayer) %>%
   group_split() %>%
   lapply(detect_streaks) %>%
   bind_rows()
+
+# ---------------------------------------------------------
+# 2. Apply league-wide scaling
+# ---------------------------------------------------------
+league_streaks <- league_streaks_raw %>%
+  mutate(
+    streak_total5  = scale_logistic(streak_total5),
+    streak_total10 = scale_logistic(streak_total10)
+  )
 
 # ---------------------------------------------------------
 # 5. Add a status label for dashboard
