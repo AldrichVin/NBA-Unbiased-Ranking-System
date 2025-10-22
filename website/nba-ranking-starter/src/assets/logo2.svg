@@ -1,0 +1,84 @@
+<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="ballGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f7931e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff6b35;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="shineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
+
+    <!-- Shadow Filter -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Glow Filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Basketball -->
+  <g transform="translate(60, 60)" filter="url(#shadow)">
+    <!-- Main ball -->
+    <circle cx="0" cy="0" r="35" fill="url(#ballGradient)"/>
+    
+    <!-- Ball seams -->
+    <path d="M 0,-35 Q 10,-25 0,35" stroke="#d64e2a" stroke-width="1.5" fill="none" opacity="0.6"/>
+    <path d="M 0,-35 Q -10,-25 0,35" stroke="#d64e2a" stroke-width="1.5" fill="none" opacity="0.6"/>
+    <ellipse cx="0" cy="0" rx="35" ry="15" stroke="#d64e2a" stroke-width="1.5" fill="none" opacity="0.6"/>
+    
+    <!-- Shine effect -->
+    <ellipse cx="-8" cy="-8" rx="12" ry="15" fill="url(#shineGradient)" opacity="0.8"/>
+  </g>
+
+  <!-- NBA Text -->
+  <text x="120" y="55" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="42" font-weight="900" fill="#ffffff" letter-spacing="2" filter="url(#glow)">
+    NBA
+  </text>
+
+  <!-- RANKING Text with gradient -->
+  <text x="120" y="85" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="28" font-weight="700" fill="url(#textGradient)" letter-spacing="4" opacity="0.95">
+    RANKING
+  </text>
+
+  <!-- Decorative elements -->
+  <g opacity="0.6">
+    <!-- Left accent line -->
+    <line x1="108" y1="45" x2="108" y2="90" stroke="url(#textGradient)" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Stats bars decoration -->
+    <rect x="270" y="48" width="30" height="4" rx="2" fill="#3b82f6" opacity="0.8"/>
+    <rect x="305" y="48" width="20" height="4" rx="2" fill="#60a5fa" opacity="0.6"/>
+    <rect x="330" y="48" width="25" height="4" rx="2" fill="#93c5fd" opacity="0.4"/>
+    
+    <rect x="270" y="78" width="25" height="4" rx="2" fill="#3b82f6" opacity="0.8"/>
+    <rect x="300" y="78" width="30" height="4" rx="2" fill="#60a5fa" opacity="0.6"/>
+    <rect x="335" y="78" width="20" height="4" rx="2" fill="#93c5fd" opacity="0.4"/>
+  </g>
+
+  <!-- Subtle glow around text -->
+  <ellipse cx="180" cy="65" rx="90" ry="30" fill="url(#textGradient)" opacity="0.05"/>
+</svg>

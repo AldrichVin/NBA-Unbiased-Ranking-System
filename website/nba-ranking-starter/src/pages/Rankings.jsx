@@ -187,32 +187,33 @@ function Rankings() {
             filteredPlayers.map((p, i) => (
               <tr key={i}>
                 <td>{p.rank}</td>
-                <td
-                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
-                >
-                  {p.headshot_href ? (
-                    <img
-                      src={p.headshot_href}
-                      alt={p.namePlayer}
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        objectFit: "cover"
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        background: "#13263d"
-                      }}
-                    />
-                  )}
-                  {p.namePlayer}
-                </td>
+                <td>
+  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    {p.headshot_href ? (
+      <img
+        src={p.headshot_href}
+        alt={p.namePlayer}
+        style={{
+          width: "32px",
+          height: "32px",
+          borderRadius: "50%",
+          objectFit: "cover"
+        }}
+      />
+    ) : (
+      <div
+        style={{
+          width: "32px",
+          height: "32px",
+          borderRadius: "50%",
+          background: "#13263d"
+        }}
+      />
+    )}
+    <span>{p.namePlayer}</span>
+  </div>
+</td>
+
                 <td>{p.team || "N/A"}</td>
                 <td>{p.pos || "N/A"}</td>
                 <td>

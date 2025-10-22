@@ -1,7 +1,6 @@
 import React from "react";
 import { NavLink } from 'react-router-dom'
-import Logo from '../assets/logo.svg'   // your basketball logo
-
+import Logo from '../assets/NBAlogo.png'   // your basketball logo
 export default function NavBar() {
   const link = ({ isActive }) => 'tab' + (isActive ? ' active' : '')
 

@@ -24,61 +24,72 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const renderPlayerRow = (p, idx) => (
+const renderPlayerRow = (p, idx) => (
+  <div
+    key={idx}
+    onClick={() => navigate("/compare", { state: { preselect: p.namePlayer } })}
+    style={{
+      display: "grid",
+      gridTemplateColumns: "50px 1fr 80px 60px 80px",
+      alignItems: "center",
+      padding: "12px 18px",
+      borderBottom: "1px solid #1e293b",
+      cursor: "pointer",
+      transition: "background 0.2s ease",
+    }}
+    onMouseEnter={(e) => (e.currentTarget.style.background = "#132f4c60")}
+    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+  >
+    <div style={{ color: "#94a3b8", fontWeight: 500 }}>{idx + 1}</div>
+    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      {p.headshot_href ? (
+        <img
+          src={p.headshot_href}
+          alt={p.namePlayer}
+          style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            objectFit: "cover",
+            border: "1px solid #2d3e52",
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            background: "#1e293b",
+          }}
+        />
+      )}
+      <div style={{ color: "#fff", fontWeight: 600 }}>{p.namePlayer}</div>
+    </div>
+    <div style={{ color: "#94a3b8", fontWeight: 500 }}>{p.team}</div>
+    <div style={{ color: "#94a3b8", fontWeight: 500 }}>{p.pos}</div>
     <div
-      key={idx}
-      onClick={() => navigate("/compare", { state: { preselect: p.namePlayer } })}
       style={{
-        display: "grid",
-        gridTemplateColumns: "50px 1fr 80px 60px 80px",
-        alignItems: "center",
-        padding: "12px 18px",
-        borderBottom: "1px solid #1e293b",
-        cursor: "pointer",
-        transition: "background 0.2s ease",
+        textAlign: "right",
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "#132f4c60")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
     >
-      <div style={{ color: "#94a3b8", fontWeight: 500 }}>{idx + 1}</div>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        {p.headshot_href ? (
-          <img
-            src={p.headshot_href}
-            alt={p.namePlayer}
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "1px solid #2d3e52",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "50%",
-              background: "#1e293b",
-            }}
-          />
-        )}
-        <div style={{ color: "#fff", fontWeight: 600 }}>{p.namePlayer}</div>
-      </div>
-      <div style={{ color: "#94a3b8", fontWeight: 500 }}>{p.team}</div>
-      <div style={{ color: "#94a3b8", fontWeight: 500 }}>{p.pos}</div>
-      <div
+      <span
         style={{
-          color: "#3b82f6",
-          textAlign: "right",
+          display: "inline-block",
+          padding: "6px 16px",
+          background: "rgba(16, 185, 129, 0.15)",
+          border: "2px solid #10b981",
+          borderRadius: "24px",
+          color: "#10b981",
+          fontSize: "14px",
           fontWeight: 700,
         }}
       >
         {p.score?.toFixed(1)}
-      </div>
+      </span>
     </div>
-  );
+  </div>
+);
 
   const renderStreakRow = (p, idx, color) => (
     <div

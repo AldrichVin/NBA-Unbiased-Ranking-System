@@ -70,7 +70,7 @@ a{color:inherit;text-decoration:none}
 .table th{color:#9bb2c9;text-align:left;font-weight:700;font-size:12px;letter-spacing:.6px;text-transform:uppercase;padding:0 12px}
 .table td{padding:14px 12px;background:#0e1a29;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .table tr td:first-child{border-left:1px solid var(--line);border-top-left-radius:12px;border-bottom-left-radius:12px}
-.table tr td:last-child{border-right:1px solid var(--line);border-top-right-radius:12px;border-bottom-right-radius:12px;text-align:left}
+.table tr td:last-child{border-right:1px solid var(--line);border-top-right-radius:12px;border-bottom-right-radius:12px;text-align:right}
 .avatar {
   width: 36px;
   height: 36px;
@@ -128,9 +128,13 @@ select.pill option {
 }
 
 .brand-img {
-  height: 40px;       /* adjust logo size */
+  height: 72px;
+  width: auto;
   display: block;
+  margin-top: 4px; /* optional small offset to align vertically */
 }
+
+
 
 /* ===== RANKINGS TABLE EXTRA POLISH ===== */
 .table tr {
@@ -146,22 +150,56 @@ select.pill option {
   text-align: center;
 }
 
-/* Responsive column spacing for TEAM, POS, and SCORE */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  table-layout: fixed; /* ensures columns don't stretch unevenly */
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 14px 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Explicit column widths for alignment */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+  width: 8%;   /* Rank */
+  text-align: center;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+  width: 38%;  /* Player (slightly wider for long names) */
+}
+
 .table th:nth-child(3),
 .table td:nth-child(3) {
-  width: 15%;   /* TEAM */
+  width: 18%;  /* Team */
+  text-align: center;
 }
 
 .table th:nth-child(4),
 .table td:nth-child(4) {
-  width: 10%;   /* POS */
+  width: 14%;  /* Position */
+  text-align: center;
 }
 
 .table th:nth-child(5),
 .table td:nth-child(5) {
-  width: 15%;   /* SCORE */
-  text-align: left;
+  width: 22%;  /* Overall */
+  text-align: right;
 }
 
-
-
+/* Keep your hover and other styles */
+.table tr {
+  transition: background 0.2s ease;
+}
+.table tr:hover td {
+  background: #152238;
+}
