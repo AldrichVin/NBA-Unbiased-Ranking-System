@@ -1,8 +1,8 @@
 import React from "react";
-import KrispinImg from "../assets/images/Krispin.jpeg";
+import KrispinImg from "../assets/images/Krispin.jpg";
 import AldrichImg from "../assets/images/Aldrich.jpeg";
-import SamiulImg from "../assets/images/Samiul.jpeg";
-import ShlokImg from "../assets/images/Shlok.jpg";
+import SamiulImg from "../assets/images/samiul.jpg";
+import ShlokImg from "../assets/images/Shlok1.jpg";
 
 export default function About() {
   return (
