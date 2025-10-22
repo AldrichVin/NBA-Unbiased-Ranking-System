@@ -19,8 +19,6 @@ library(moments)
 library(knitr)
 library(rvest)
 
-ls("package:hoopR")
-ls("package:nbastatR")
 
 # ============================================================
 # Step 1: Get All Current NBA Players
@@ -33,7 +31,6 @@ nba_ids <- all_players$CommonAllPlayers %>%
     nba_name  = DISPLAY_FIRST_LAST
   )
 
-cat("NBA Players retrieved:", nrow(nba_ids), "\n")
 
 # ============================================================
 # Step 2: Load CSV-Based ESPN IDs
@@ -47,14 +44,13 @@ espn_clean <- espn_ids %>%
   ) %>%
   distinct(Person_ID, athlete_id)
 
-cat("ESPN IDs from CSV:", nrow(espn_clean), "\n")
 
 # Merge first: NBA ↔ CSV
 merged_players_csv <- nba_ids %>%
   left_join(espn_clean, by = "Person_ID") %>%
   filter(!is.na(athlete_id))
 
-cat("Players matched via CSV:", nrow(merged_players_csv), "\n")
+
 
 # ============================================================
 # Step 3: Identify Missing Players (not in CSV)
@@ -62,7 +58,6 @@ cat("Players matched via CSV:", nrow(merged_players_csv), "\n")
 missing_players <- nba_ids %>%
   filter(!Person_ID %in% merged_players_csv$Person_ID)
 
-cat("Players missing ESPN IDs:", nrow(missing_players), "\n")
 
 # ============================================================
 # Step 4: Scrape ESPN Team Pages for Missing Players
@@ -97,8 +92,6 @@ espn_links_all <- map(urls, function(u) {
 
 
 
-cat("Scraped ESPN players:", nrow(espn_links_all), "\n")
-
 # Join missing players by name (case-insensitive)
 merged_scraped <- missing_players %>%
   mutate(clean_name = str_to_lower(str_replace_all(nba_name, "[^a-z ]", ""))) %>%
@@ -106,7 +99,7 @@ merged_scraped <- missing_players %>%
   filter(!is.na(athlete_id)) %>%
   select(Person_ID, nba_name, athlete_id)
 
-cat("Recovered missing players via scrape:", nrow(merged_scraped), "\n")
+
 
 # ============================================================
 # Step 5: Combine Both Sources
@@ -117,7 +110,7 @@ merged_players <- bind_rows(
 ) %>%
   distinct(Person_ID, .keep_all = TRUE)
 
-cat("✅ Total merged players with ESPN IDs:", nrow(merged_players), "\n")
+
 
 # ============================================================
 # Step 6: Fetch ESPN Player Stats
@@ -138,20 +131,15 @@ player_stats_list <- lapply(merged_players$athlete_id, function(id) {
 valid_stats <- player_stats_list[sapply(player_stats_list, function(x)
   !is.null(x) && nrow(x) > 0)]
 
-cat("Players with valid stats:", length(valid_stats), "\n")
 
 all_stats <- bind_rows(valid_stats)
-cat("Total stat rows combined:", nrow(all_stats), "\n")
-cat("Unique athlete IDs:", length(unique(all_stats$athlete_id)), "\n")
+
 
 
 # ============================================================
 # Step 7: Save + Preview
 # ============================================================
-write.csv(all_stats, "nba_all_stats_combined.csv", row.names = FALSE)
-head(all_stats)
-dim(all_stats)
-View(all_stats)
+write.csv(all_stats, "nba_all_stats.csv", row.names = FALSE)
 
 # -------------------------------
 # Filtering Rotation-Level Players
@@ -160,7 +148,6 @@ View(all_stats)
 all_stats_clean <- all_stats %>%
   filter(general_minutes > 500 & general_games_played >10) 
 
-View(all_stats_clean)
 # -------------------------------
 # RANKING
 # -------------------------------
@@ -236,7 +223,6 @@ rank_players <- function(tbl,
 
 # Run
 res <- rank_players(all_stats_clean)
-View(res)
 
 #Normalize the scores to 0-100
 scale_logistic <- function(x, lower = 30, upper = 99) {
@@ -258,6 +244,7 @@ res <- res %>%
   ) %>%
   select(rank, headshot_href, namePlayer, position_abbreviation, team_abbreviation, TOTAL_100)
 
+write.csv(res,"ranking_model.csv")
 #Hot and Cold Streak
 library(nbastatR)
 ls("package:nbastatR")
@@ -272,8 +259,7 @@ Sys.setenv("VROOM_CONNECTION_SIZE" = 10 * 1024 * 1024)
 
 logs <- game_logs(seasons = recent_season, league = "NBA",
                   season_types = c("Regular Season", "Playoffs"))
-glimpse(logs)
-colnames(logs)
+
 
 # ---------------------------------------------------------
 # 2. Add per-game ranking score (TOTAL_100)
@@ -309,7 +295,6 @@ logs_with_score <- logs %>%
     TOTAL_100 = scale_logistic(score_total, lower = 30, upper = 99)
   )
 
-summary(logs_with_score$TOTAL_100)
 
 # ---------------------------------------------------------
 # 3. Hot/Cold streak detection function (with reasons)
@@ -441,12 +426,12 @@ streak_summary <- league_streaks %>%
     )
   ) %>%
   arrange(desc(diff5), desc(diff10))   # order by biggest swing
-View(streak_summary)
+
 
 # ---------------------------------------------------------
 # 6. Preview
 # ---------------------------------------------------------
-head(streak_summary, 10)
+
 
 # Sort streak_total5 in descending order to find the top 5 players
 top_5_players_5 <- streak_summary %>%
@@ -467,16 +452,6 @@ bot_5_players_10 <- streak_summary %>%
   arrange((streak_total10)) %>%
   head(5)
 
-
-# View the top 5 players based on streak_total5
-print(top_5_players_5)
-
-# View the top 5 players based on streak_total10
-print(top_5_players_10)
-
-print(bot_5_players_5)
-
-print(bot_5_players_10)
 
 
 
@@ -521,9 +496,9 @@ final_comparison <- res_scaled %>%
     TOTAL_100 = TOTAL_100
   )
 
-View(final_comparison)
-write.csv(final_comparison, "nba_player_comparison.csv", row.names = FALSE)
 
+write.csv(final_comparison, "nba_player_comparison.csv", row.names = FALSE)
+  
 
 # ==========================================================
 # === FINAL TRENDS CSV (USING all_stats_clean) ===
@@ -547,27 +522,15 @@ trend_final <- streak_summary %>%
     reason
   ) %>%
   arrange(desc(streak_total5))
-View(all_stats)
-View(trend_final)
+
 # Save to CSV
 write.csv(trend_final, "nba_trends_page.csv", row.names = FALSE)
-
-cat("saved 'nba_trends_page.csv' with", nrow(trend_final), "players.\n")
-
-
-print(trend_final)
-# Save to CSV
-write.csv(trend_final, "nba_trends_page.csv", row.names = FALSE)
-
-cat("saved 'nba_trends_page.csv' with", nrow(trend_final), "players.\n")
-
-
 
 
 # ==========================================================
 # === FINAL TRENDS CSV (USING all_stats_clean) ===
 # ==========================================================
-View(all_stats)
+
 library(dplyr)
 library(stringr)
 library(stringi)
@@ -604,8 +567,6 @@ trend_final_5 <- streak_summary %>%
     !is.na(streak_total10)) %>%
   arrange(desc(streak_total5))
 
-
-View(trend_final_10)
 
 trend_final_10 <- streak_summary %>%
   mutate(
