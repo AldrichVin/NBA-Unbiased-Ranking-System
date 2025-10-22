@@ -358,7 +358,11 @@ detect_streaks <- function(df,
       hot10  = (streak_total10 >= season_avg * ratio_hot10)  & (z10 >= z_hot),
       cold10 = (streak_total10 <= season_avg * ratio_cold10) & (z10 <= z_cold)
     )
-  
+  df <- df %>%
+  mutate(
+    streak_total5  = scale_logistic(streak_total5),
+    streak_total10 = scale_logistic(streak_total10)
+  )
   # --- latest game output ---
   latest <- df %>%
     slice_tail(n = 1) %>%
