@@ -22,9 +22,9 @@ library(rvest)
 ls("package:hoopR")
 ls("package:nbastatR")
 
-# -------------------------------
-# Step 1: NBA Player IDs + Names
-# -------------------------------
+# ============================================================
+# Step 1: Get All Current NBA Players
+# ============================================================
 all_players <- nba_commonallplayers(is_only_current_season = 1, league_id = "00")
 
 nba_ids <- all_players$CommonAllPlayers %>%
@@ -35,78 +35,123 @@ nba_ids <- all_players$CommonAllPlayers %>%
 
 cat("NBA Players retrieved:", nrow(nba_ids), "\n")
 
-# -------------------------------
-# Step 2: Scrape ESPN Players (IDs + Names)
-# -------------------------------
-team_abbs <- c('atl','bkn','bos','cha','cle','chi','dal','den','det','gsw','hou',
-               'ind','lac','lal','mem','mia','mil','min','no','ny','okc','orl',
-               'phi','phx','por','sa','sac','tor','utah','wsh')
+# ============================================================
+# Step 2: Load CSV-Based ESPN IDs
+# ============================================================
+espn_ids <- read.csv("NBA_Player_IDs.csv", header = TRUE)
 
-season <- format(Sys.Date(), "%Y")   
-urls <- paste0("https://www.espn.com/nba/team/stats/_/name/", team_abbs,
-               "/season/", season, "/seasontype/2")
-espn_links_all <- lapply(urls, function(u) {
+espn_clean <- espn_ids %>%
+  mutate(
+    Person_ID = as.character(NBAID),
+    athlete_id = as.numeric(ESPNID)
+  ) %>%
+  distinct(Person_ID, athlete_id)
+
+cat("ESPN IDs from CSV:", nrow(espn_clean), "\n")
+
+# Merge first: NBA ↔ CSV
+merged_players_csv <- nba_ids %>%
+  left_join(espn_clean, by = "Person_ID") %>%
+  filter(!is.na(athlete_id))
+
+cat("Players matched via CSV:", nrow(merged_players_csv), "\n")
+
+# ============================================================
+# Step 3: Identify Missing Players (not in CSV)
+# ============================================================
+missing_players <- nba_ids %>%
+  filter(!Person_ID %in% merged_players_csv$Person_ID)
+
+cat("Players missing ESPN IDs:", nrow(missing_players), "\n")
+
+# ============================================================
+# Step 4: Scrape ESPN Team Pages for Missing Players
+# ============================================================
+team_abbs <- c(
+  "atl","bkn","bos","cha","cle","chi","dal","den","det","gsw","hou",
+  "ind","lac","lal","mem","mia","mil","min","no","ny","okc","orl",
+  "phi","phx","por","sa","sac","tor","utah","wsh"
+)
+
+season <- format(Sys.Date(), "%Y")
+urls <- paste0(
+  "https://www.espn.com/nba/team/stats/_/name/",
+  team_abbs, "/season/", season, "/seasontype/2"
+)
+
+espn_links_all <- map(urls, function(u) {
   webpage <- tryCatch(read_html(u), error = function(e) return(NULL))
   if (is.null(webpage)) return(NULL)
-  
   links <- webpage %>% html_nodes(xpath = "//td/span/a") %>% html_attr("href")
   names <- webpage %>% html_nodes(xpath = "//td/span/a") %>% html_text()
-  
-  data.frame(
-    espn_name = names,
-    espn_link = links,
-    stringsAsFactors = FALSE
-  )
-})
-
-
-# LONG TIME TO LOAD
-espn_links_all <- do.call(rbind, espn_links_all) %>%
+  if (length(names) == 0) return(NULL)
+  tibble(espn_name = names, espn_link = links)
+}) %>%
+  compact() %>%
+  list_rbind() %>%
   distinct(espn_link, .keep_all = TRUE) %>%
   mutate(
-    athlete_id = str_extract(espn_link, "(?<=/id/)[0-9]+")
+    athlete_id = as.numeric(str_extract(espn_link, "(?<=/id/)[0-9]+")),
+    clean_name = str_to_lower(str_replace_all(espn_name, "[^a-z ]", ""))
   )
 
 
-cat("ESPN Players scraped:", nrow(espn_links_all), "\n")
 
-# -------------------------------
-# Step 3: Exact Join (NBA ↔ ESPN by Name)
-# -------------------------------
-merged_exact <- nba_ids %>%
-  left_join(espn_links_all, by = c("nba_name" = "espn_name"))
+cat("Scraped ESPN players:", nrow(espn_links_all), "\n")
 
-cat("Exact matches:", sum(!is.na(merged_exact$athlete_id)), "\n")
+# Join missing players by name (case-insensitive)
+merged_scraped <- missing_players %>%
+  mutate(clean_name = str_to_lower(str_replace_all(nba_name, "[^a-z ]", ""))) %>%
+  left_join(espn_links_all, by = "clean_name") %>%
+  filter(!is.na(athlete_id)) %>%
+  select(Person_ID, nba_name, athlete_id)
 
-# -------------------------------
-# Step 4: Fetch ESPN Player Stats for 2025
-# -------------------------------
-recent_season = most_recent_nba_season()
+cat("Recovered missing players via scrape:", nrow(merged_scraped), "\n")
 
-# LONG TIME TO LOAD
-player_stats_list <- lapply(merged_exact$athlete_id, function(id) {
+# ============================================================
+# Step 5: Combine Both Sources
+# ============================================================
+merged_players <- bind_rows(
+  merged_players_csv,
+  merged_scraped
+) %>%
+  distinct(Person_ID, .keep_all = TRUE)
+
+cat("✅ Total merged players with ESPN IDs:", nrow(merged_players), "\n")
+
+# ============================================================
+# Step 6: Fetch ESPN Player Stats
+# ============================================================
+recent_season <- most_recent_nba_season()-1
+cat("Fetching stats for season:", recent_season, "\n")
+
+player_stats_list <- lapply(merged_players$athlete_id, function(id) {
   tryCatch({
-    espn_nba_player_stats(athlete_id = id, recent_season)
+    df <- espn_nba_player_stats(athlete_id = id, year = recent_season)
+    if (is.data.frame(df) && nrow(df) > 0) df else NULL
   }, error = function(e) {
     message(paste("No data for athlete_id:", id))
     NULL
   })
 })
 
-print(recent_season)
-print(class(recent_season))
-    # Combine All Stats into One DataFrame
-all_stats <- bind_rows(player_stats_list)
+valid_stats <- player_stats_list[sapply(player_stats_list, function(x)
+  !is.null(x) && nrow(x) > 0)]
 
-all_stats
-View(all_stats)
-# -------------------------------
-# Preview Results
-# -------------------------------
+cat("Players with valid stats:", length(valid_stats), "\n")
+
+all_stats <- bind_rows(valid_stats)
+cat("Total stat rows combined:", nrow(all_stats), "\n")
+cat("Unique athlete IDs:", length(unique(all_stats$athlete_id)), "\n")
+
+
+# ============================================================
+# Step 7: Save + Preview
+# ============================================================
+write.csv(all_stats, "nba_all_stats_combined.csv", row.names = FALSE)
 head(all_stats)
 dim(all_stats)
-
-write.csv(all_stats, "nba_all_stats.csv")
+View(all_stats)
 
 # -------------------------------
 # Filtering Rotation-Level Players
