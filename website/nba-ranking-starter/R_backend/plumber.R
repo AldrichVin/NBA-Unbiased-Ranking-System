@@ -13,10 +13,12 @@ library(dplyr)
 #* @filter cors
 cors <- function(req, res) {
     res$setHeader("Access-Control-Allow-Origin", "*")
-    res$setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-    res$setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
-    
+    res$setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    res$setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin, X-Requested-With")
+    res$setHeader("Access-Control-Max-Age", "86400")
+
     if (req$REQUEST_METHOD == "OPTIONS") {
+        res$status <- 200
         return(list())
     } else {
         forward()
